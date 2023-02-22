@@ -3,7 +3,7 @@
   "version": "0.3.2",
   "description": "syncit transporters",
   "author": "Yanzhen Yu <yanzhen@smartx.com>",
-  "homepage": "https://github.com/Yuyz0112/syncit#readme",
+  "homepage": "https://github.com/rrweb-io/syncit#readme",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -24,7 +24,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Yuyz0112/syncit.git"
+    "url": "git+https://github.com/rrweb-io/syncit.git"
   },
   "scripts": {
     "test": "jest",
@@ -33,7 +33,7 @@
     "prepublish": "yarn build && yarn typings"
   },
   "bugs": {
-    "url": "https://github.com/Yuyz0112/syncit/issues"
+    "url": "https://github.com/rrweb-io/syncit/issues"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^8.0.1",
