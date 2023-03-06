@@ -1,1 +1,4 @@
 website/* linguist-documentation
+
+/.yarn/releases/** binary
+/.yarn/plugins/** binary
