@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { LocalStorageTransporter } from '../src/local-storage';
 import { TransporterEvents } from '../src/base';
 

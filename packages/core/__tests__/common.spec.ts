@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { formatBytes } from '../src/common';
 
 describe('formatBytes', () => {

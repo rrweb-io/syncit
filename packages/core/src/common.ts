@@ -1,11 +1,11 @@
 import { utils, EventType, IncrementalSource } from 'rrweb';
-import { INode } from 'rrweb-snapshot';
+import { Mirror } from 'rrweb-snapshot';
 import {
   listenerHandler,
   inputValue,
   eventWithTime,
-  Mirror,
-} from 'rrweb/typings/types';
+  IWindow,
+} from '@rrweb/types';
 
 export type ValueWithUnit = {
   value: number;
@@ -56,6 +56,7 @@ export const enum RemoteControlActions {
 const INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT'];
 const lastInputValueMap: WeakMap<EventTarget, inputValue> = new WeakMap();
 export function onMirror(
+  mirror: Mirror,
   iframe: HTMLIFrameElement,
   cb: (payload: MirrorPayload) => void
 ): listenerHandler {
@@ -67,22 +68,22 @@ export function onMirror(
   const handlers: listenerHandler[] = [];
 
   const clickCb = (evt: Event) => {
-    const target = evt.target as INode;
-    if (!target.__sn) {
+    const target = evt.target;
+    if (!mirror.hasNode(target as Node)) {
       return;
     }
     cb({
       action: RemoteControlActions.Click,
-      id: target.__sn.id,
+      id: mirror.getId(target as Node),
     });
   };
-  handlers.push(utils.on('click', clickCb, iframeWindow));
+  handlers.push(utils.on('click', clickCb, iframeWindow as IWindow));
   const scrollCb = (evt: Event) => {
-    const target = evt.target as INode;
-    if (!target.__sn) {
+    const target = evt.target;
+    if (!mirror.hasNode(target as Node)) {
       return;
     }
-    const { id } = target.__sn;
+    const id = mirror.getId(target as Node);
     if ((target as unknown) === iframeDoc) {
       const scrollEl = iframeDoc.scrollingElement || iframeDoc.documentElement;
       cb({
@@ -104,7 +105,7 @@ export function onMirror(
       });
     }
   };
-  handlers.push(utils.on('scroll', scrollCb, iframeWindow));
+  handlers.push(utils.on('scroll', scrollCb, iframeWindow as IWindow));
 
   function eventHandler(event: Event) {
     const target = event.target as HTMLInputElement | null;
@@ -140,7 +141,7 @@ export function onMirror(
       lastInputValue.isChecked !== v.isChecked
     ) {
       lastInputValueMap.set(target, v);
-      const id = ((target as unknown) as INode).__sn.id;
+      const id = mirror.getId(target);
       cb({
         action: RemoteControlActions.Input,
         id,

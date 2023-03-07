@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { SourceBuffer, BaseBuffer, MirrorBuffer } from '../src/buffer';
 
 describe('BaseBuffer', () => {

@@ -3,12 +3,9 @@ module.exports = {
     '.ts': 'ts-jest',
   },
 
-  globals: {
-    'ts-jest': {
-      diagnostics: false,
-    },
+  testEnvironmentOptions: {
+    url: 'http://localhost/',
   },
-
   moduleFileExtensions: ['ts', 'js'],
 
   testMatch: ['<rootDir>/__tests__/**/**.spec.ts'],

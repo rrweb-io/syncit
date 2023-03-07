@@ -18,7 +18,7 @@ export type PeerjsTransporterOptions = {
 const sleep = (ms: number) =>
   new Promise(resolve =>
     setTimeout(() => {
-      resolve();
+      resolve(undefined);
     }, ms)
   );
 
@@ -90,7 +90,7 @@ export class PeerjsTransporter<T> implements Transporter<T> {
       conn.on('open', () => {
         console.info('connection opened', Date.now());
         this.conn = conn;
-        resolve();
+        resolve(undefined);
       });
       conn.on('data', data => {
         const { event, payload } = data;
