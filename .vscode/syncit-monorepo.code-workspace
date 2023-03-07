@@ -18,6 +18,7 @@
     }
   ],
   "settings": {
-    "jest.disabledWorkspaceFolders": [" syncit monorepo", "@syncit/ui"]
+    "jest.disabledWorkspaceFolders": [" syncit monorepo", "@syncit/ui"],
+    "vitest.include": ["packages/ui/src/**/*.test.ts"]
   }
 }
