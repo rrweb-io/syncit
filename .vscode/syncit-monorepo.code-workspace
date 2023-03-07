@@ -1,0 +1,23 @@
+{
+  "folders": [
+    {
+      "name": " syncit monorepo", // added a space to bump it to the top
+      "path": ".."
+    },
+    {
+      "name": "@syncit/core",
+      "path": "../packages/core"
+    },
+    {
+      "name": "@syncit/transporter",
+      "path": "../packages/transporter"
+    },
+    {
+      "name": "@syncit/ui",
+      "path": "../packages/ui"
+    }
+  ],
+  "settings": {
+    "jest.disabledWorkspaceFolders": [" syncit monorepo", "@syncit/ui"]
+  }
+}

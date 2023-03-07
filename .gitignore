@@ -1,5 +1,6 @@
 # local
-.vscode
+.vscode/*
+!.vscode/syncit-monorepo.code-workspace
 
 # log
 *.log
