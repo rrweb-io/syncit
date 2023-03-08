@@ -29,6 +29,7 @@
   "scripts": {
     "test": "jest",
     "build": "rollup --config",
+    "check": "tsc --noEmit",
     "typings": "tsc -d --emitDeclarationOnly --declarationDir typings",
     "prepublish": "yarn build && yarn typings"
   },

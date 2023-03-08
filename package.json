@@ -3,7 +3,10 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "lerna": "lerna"
+    "lerna": "lerna",
+    "build": "lerna run build",
+    "typings": "lerna run typings",
+    "test": "lerna run test"
   },
   "devDependencies": {
     "lerna": "^3.22.1"
