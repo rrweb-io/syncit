@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { eventWithTime } from '@rrweb/types';
+import { Chunk, RemoteControlPayload } from '@syncit/core';
 import AgoraRTM from 'agora-rtm-sdk';
 import {
   Transporter,
   TransporterEvents,
   TransporterEventHandler,
+  TransporterHandlers,
 } from './base';
 
 export type AgoraRtmTransporterOptions = {
@@ -12,8 +15,8 @@ export type AgoraRtmTransporterOptions = {
   role: 'embed' | 'app';
 };
 
-export class AgoraRtmTransporter<T> implements Transporter<T> {
-  handlers: Record<TransporterEvents, Array<TransporterEventHandler>> = {
+export class AgoraRtmTransporter implements Transporter {
+  handlers: TransporterHandlers = {
     [TransporterEvents.SourceReady]: [],
     [TransporterEvents.MirrorReady]: [],
     [TransporterEvents.Start]: [],
@@ -40,13 +43,12 @@ export class AgoraRtmTransporter<T> implements Transporter<T> {
       if (![this.embedUid, this.appUid].includes(peerId) || !message.text) {
         return;
       }
-      let data!: { event: TransporterEvents; payload?: unknown };
+      let data!: Parameters<TransporterEventHandler>[0];
       try {
         data = JSON.parse(message.text);
         this.handlers[data.event].map(h =>
           h({
-            event: data.event,
-            payload: data.payload,
+            ...data,
           })
         );
       } catch (_) {
@@ -73,8 +75,7 @@ export class AgoraRtmTransporter<T> implements Transporter<T> {
           data = JSON.parse(concatRaw);
           this.handlers[data.event].map(h =>
             h({
-              event: data.event,
-              payload: data.payload,
+              ...data,
             })
           );
         }
@@ -136,7 +137,7 @@ export class AgoraRtmTransporter<T> implements Transporter<T> {
     );
   }
 
-  async sendRecord(record: unknown) {
+  async sendRecord(record: Chunk<eventWithTime>) {
     const texts =
       JSON.stringify({
         event: TransporterEvents.SendRecord,
@@ -146,9 +147,7 @@ export class AgoraRtmTransporter<T> implements Transporter<T> {
       texts.map((text, idx) =>
         this.client.sendMessageToPeer(
           {
-            text: `${idx + 1}/${texts.length}/${
-              (record as { id: number }).id
-            }_${text}`,
+            text: `${idx + 1}/${texts.length}/${record.id}_${text}`,
           },
           this.appUid
         )
@@ -177,7 +176,7 @@ export class AgoraRtmTransporter<T> implements Transporter<T> {
     );
   }
 
-  async sendRemoteControl(payload: unknown) {
+  async sendRemoteControl(payload: RemoteControlPayload) {
     await this.client.sendMessageToPeer(
       {
         text: JSON.stringify({

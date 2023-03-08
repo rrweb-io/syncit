@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { eventWithTime } from '@rrweb/types';
+import { Chunk, RemoteControlPayload } from '@syncit/core';
 import {
   Transporter,
   TransporterEvents,
   TransporterEventHandler,
+  TransporterHandlers,
 } from './base';
 
-export class WebSocketTransporter<T> implements Transporter<T> {
-  handlers: Record<TransporterEvents, Array<TransporterEventHandler>> = {
+export class WebSocketTransporter implements Transporter {
+  handlers: TransporterHandlers = {
     [TransporterEvents.SourceReady]: [],
     [TransporterEvents.MirrorReady]: [],
     [TransporterEvents.Start]: [],
@@ -70,7 +73,7 @@ export class WebSocketTransporter<T> implements Transporter<T> {
     return Promise.resolve();
   }
 
-  sendRecord(record: unknown) {
+  sendRecord(record: Chunk<eventWithTime>) {
     this.setItem({
       event: TransporterEvents.SendRecord,
       payload: record,
@@ -93,7 +96,7 @@ export class WebSocketTransporter<T> implements Transporter<T> {
     return Promise.resolve();
   }
 
-  sendRemoteControl(payload: unknown) {
+  sendRemoteControl(payload: RemoteControlPayload) {
     this.setItem({
       event: TransporterEvents.RemoteControl,
       payload,

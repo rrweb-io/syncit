@@ -1,16 +1,23 @@
 <script lang="ts">
 	import { record } from 'rrweb';
+	import type { eventWithTime } from '@rrweb/types';
 	import { onMount, onDestroy } from 'svelte';
 	import { quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
-	import { TransporterEvents } from '@syncit/transporter';
+	import {
+		TransporterEvents,
+		type TransportAckRecordEvent,
+		type Transporter,
+		type TransportRemoteControlEvent
+	} from '@syncit/transporter';
 	import {
 		applyMirrorAction,
 		SourceBuffer,
 		createEmbedService,
 		createEmbedControlService,
 		RemoteControlActions,
-		CustomEventTags
+		CustomEventTags,
+		type MirrorPayload
 	} from '@syncit/core';
 	import { customAlphabet } from 'nanoid';
 	import copy from 'copy-to-clipboard';
@@ -20,8 +27,9 @@
 	import Tag from './components/Tag.svelte';
 	import Icon from './components/Icon.svelte';
 	import { t, setCurrentLanguage } from '../locales';
+	import type { PaintingConfig } from './types';
 
-	export let createTransporter;
+	export let createTransporter: ({ role, uid }: { role: string; uid: string }) => Transporter;
 	export let lang: string | undefined = undefined;
 
 	const nanoid = customAlphabet('1234567890abcdef', 10);
@@ -32,21 +40,21 @@
 	});
 
 	let login = transporter.login();
-	let ref;
+	let ref: HTMLElement;
 	$: ref && document.body.appendChild(ref);
 
 	let open = false;
 
-	const buffer = new SourceBuffer({
+	const buffer = new SourceBuffer<eventWithTime>({
 		onTimeout(record) {
 			transporter.sendRecord(record);
 		}
 	});
 
 	let selecting = false;
-	let mask;
+	let mask: HTMLElement;
 	$: mask && document.body.appendChild(mask);
-	let blockElSet = new Set();
+	let blockElSet = new Set<HTMLElement>();
 	$: blockEls = Array.from(blockElSet);
 
 	const service = createEmbedService({
@@ -61,7 +69,7 @@
 	});
 	let controlCurrent = controlService.state;
 
-	const highlight = (target) => {
+	const highlight = (target: HTMLElement) => {
 		const { x, y, width, height } = target.getBoundingClientRect();
 		Object.assign(mask.style, {
 			left: `${x}px`,
@@ -81,22 +89,22 @@
 		});
 	};
 
-	const over = (event) => {
+	const over = (event: MouseEvent) => {
 		if (
 			event.target &&
 			ref !== event.target &&
-			!ref.contains(event.target) &&
+			!ref.contains(event.target as HTMLElement) &&
 			event.target !== document.body
 		) {
-			highlight(event.target);
+			highlight(event.target as HTMLElement);
 		}
 	};
-	const click = (event) => {
-		if (!selecting || ref.contains(event.target)) {
+	const click = (event: MouseEvent) => {
+		if (!selecting || ref.contains(event.target as HTMLElement)) {
 			return;
 		}
-		event.target.classList.add('rr-block');
-		blockElSet = blockElSet.add(event.target);
+		(event.target as HTMLElement).classList.add('rr-block');
+		blockElSet = blockElSet.add(event.target as HTMLElement);
 		cancelSelect();
 	};
 	const cancelSelect = () => {
@@ -105,7 +113,7 @@
 		window.removeEventListener('mousemove', over, { capture: true });
 		window.removeEventListener('click', click, { capture: true });
 	};
-	const removeBlockEl = (el) => {
+	const removeBlockEl = (el: HTMLElement) => {
 		blockElSet.delete(el);
 		blockElSet = blockElSet;
 		removeHighlight();
@@ -121,12 +129,12 @@
 		}
 	}
 
-	function changeMouseSize(level) {
+	function changeMouseSize(level: number) {
 		record.addCustomEvent(CustomEventTags.MouseSize, { level });
 	}
 
 	function stopRemoteControl() {
-		record.addCustomEvent(CustomEventTags.StopRemoteControl);
+		record.addCustomEvent(CustomEventTags.StopRemoteControl, undefined);
 		controlService.send('STOP');
 	}
 
@@ -140,7 +148,7 @@
 	}
 
 	let painting = false;
-	let paintingConfig = {
+	let paintingConfig: PaintingConfig = {
 		stroke: '#df4b26',
 		strokeWidth: 5,
 		mode: 'brush'
@@ -148,15 +156,18 @@
 	function togglePaint() {
 		painting = !painting;
 		if (painting) {
-			record.addCustomEvent(CustomEventTags.StartPaint);
+			record.addCustomEvent(CustomEventTags.StartPaint, undefined);
 			record.addCustomEvent(CustomEventTags.SetPaintingConfig, {
 				config: paintingConfig
 			});
 		} else {
-			record.addCustomEvent(CustomEventTags.EndPaint);
+			record.addCustomEvent(CustomEventTags.EndPaint, undefined);
 		}
 	}
-	function setPaintingConfig(key, value) {
+	function setPaintingConfig<T extends keyof typeof paintingConfig>(
+		key: T,
+		value: (typeof paintingConfig)[T]
+	) {
 		paintingConfig[key] = value;
 		record.addCustomEvent(CustomEventTags.SetPaintingConfig, {
 			config: paintingConfig
@@ -164,9 +175,9 @@
 	}
 
 	let sharingPDF = false;
-	let pdfEl;
-	function handlePdf(event) {
-		const file = event.target.files[0];
+	let pdfEl: PDF;
+	function handlePdf(files: FileList) {
+		const file = files[0];
 		sharingPDF = true;
 		const fileReader = new FileReader();
 		fileReader.onload = function () {
@@ -179,7 +190,7 @@
 	function closePDF() {
 		sharingPDF = false;
 
-		record.addCustomEvent(CustomEventTags.ClosePDF);
+		record.addCustomEvent(CustomEventTags.ClosePDF, undefined);
 	}
 
 	onMount(() => {
@@ -203,10 +214,10 @@
 			service.send('CONNECT');
 		});
 		transporter.on(TransporterEvents.AckRecord, ({ payload }) => {
-			buffer.delete(payload);
+			buffer.delete(payload as TransportAckRecordEvent['payload']);
 		});
 		transporter.on(TransporterEvents.RemoteControl, ({ payload }) => {
-			switch (payload.action) {
+			switch ((payload as TransportRemoteControlEvent['payload']).action) {
 				case RemoteControlActions.Request:
 					controlService.send('REQUEST');
 					break;
@@ -214,7 +225,7 @@
 					controlService.send('STOP');
 					break;
 				default:
-					applyMirrorAction(record.mirror, payload);
+					applyMirrorAction(record.mirror, payload as MirrorPayload);
 					break;
 			}
 		});
@@ -269,7 +280,7 @@
 								{:else}
 									UID:
 									{uid}
-									<span class="syncit-copy" on:click={copyUid}>
+									<span class="syncit-copy" on:click={copyUid} on:keypress={copyUid}>
 										<Icon name="copy" />
 									</span>
 								{/if}
@@ -285,32 +296,37 @@
 								{#if painting}
 									<div class="syncit-painting-config">
 										<div>
-											<label>Stroke:</label>
+											<label for="Stroke">Stroke:</label>
 											{paintingConfig.stroke}
 											<input
+												id="Stroke"
 												type="color"
 												value={paintingConfig.stroke}
-												on:change={(event) => setPaintingConfig('stroke', event.target.value)}
+												on:change={(event) =>
+													setPaintingConfig('stroke', event.currentTarget.value)}
 											/>
 										</div>
 										<div>
-											<label>Stroke Width:</label>
+											<label for="strokeWidth">Stroke Width:</label>
 											{paintingConfig.strokeWidth}
 											<input
+												id="strokeWidth"
 												type="range"
 												min="3"
 												max="20"
 												value={paintingConfig.strokeWidth}
-												on:change={(event) => setPaintingConfig('strokeWidth', event.target.value)}
+												on:change={(event) =>
+													setPaintingConfig('strokeWidth', Number(event.currentTarget.value))}
 											/>
 										</div>
 										<div>
-											<label>Mode:</label>
+											<label for="mode">Mode:</label>
 											{paintingConfig.mode}
 											<!-- svelte-ignore a11y-no-onchange -->
 											<select
+												id="mode"
 												value={paintingConfig.mode}
-												on:change={(event) => setPaintingConfig('mode', event.target.value)}
+												on:change={(event) => setPaintingConfig('mode', event.currentTarget.value)}
 											>
 												<option>brush</option>
 												<option>eraser</option>
@@ -321,7 +337,8 @@
 								{/if}
 								<input
 									type="file"
-									on:change={handlePdf}
+									on:change={(event) =>
+										event.currentTarget.files && handlePdf(event.currentTarget.files)}
 									style="overflow: hidden;display:block;width:100%;"
 								/>
 								<p>{t('embed.mouseSize')}</p>

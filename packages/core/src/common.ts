@@ -46,7 +46,16 @@ export type MirrorPayload =
       isChecked: inputValue['isChecked'];
     };
 
-export const enum RemoteControlActions {
+export type RemoteControlPayload =
+  | {
+      action: RemoteControlActions.Request;
+    }
+  | {
+      action: RemoteControlActions.Stop;
+    }
+  | MirrorPayload;
+
+export enum RemoteControlActions {
   Request,
   Stop,
   Click,
@@ -246,7 +255,7 @@ export function applyMirrorAction(
   }
 }
 
-export const enum CustomEventTags {
+export enum CustomEventTags {
   Ping = 'Ping',
   AcceptRemoteControl = 'AcceptRemoteControl',
   StopRemoteControl = 'StopRemoteControl',

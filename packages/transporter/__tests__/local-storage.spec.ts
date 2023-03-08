@@ -4,10 +4,12 @@
 
 import { LocalStorageTransporter } from '../src/local-storage';
 import { TransporterEvents } from '../src/base';
+import { eventWithTime } from '@rrweb/types';
+import { Chunk, RemoteControlActions } from '@syncit/core';
 
 describe('LocalTransporter', () => {
   it('integration test', async () => {
-    const transporter = new LocalStorageTransporter<any>();
+    const transporter = new LocalStorageTransporter();
     const results: Array<{ event: TransporterEvents; payload?: unknown }> = [];
     transporter.on(TransporterEvents.SourceReady, data => {
       results.push(data);
@@ -33,9 +35,14 @@ describe('LocalTransporter', () => {
     await transporter.sendSourceReady();
     await transporter.sendMirrorReady();
     await transporter.sendStart();
-    await transporter.sendRecord({ id: 1 });
+    await transporter.sendRecord({ id: 1 } as Chunk<eventWithTime>);
     await transporter.ackRecord(1);
-    await transporter.sendRemoteControl({ id: 1, action: 'scroll' });
+    await transporter.sendRemoteControl({
+      id: 1,
+      action: RemoteControlActions.Scroll,
+      x: 0,
+      y: 0,
+    });
     await transporter.sendStop();
     expect(results).toEqual([
       { event: TransporterEvents.SourceReady },
@@ -45,7 +52,7 @@ describe('LocalTransporter', () => {
       { event: TransporterEvents.AckRecord, payload: 1 },
       {
         event: TransporterEvents.RemoteControl,
-        payload: { action: 'scroll', id: 1 },
+        payload: { action: RemoteControlActions.Scroll, id: 1, x: 0, y: 0 },
       },
       { event: TransporterEvents.Stop },
     ]);

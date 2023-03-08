@@ -1,16 +1,22 @@
-<script>
+<script lang="ts">
 	import { onMount, onDestroy, tick } from 'svelte';
-	import { Replayer, EventType, pack, mirror } from 'rrweb';
+	import { Replayer, EventType, pack } from 'rrweb';
+	import type { customEvent, eventWithTime } from '@rrweb/types';
 	import { quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
-	import { TransporterEvents } from '@syncit/transporter';
+	import {
+		TransporterEvents,
+		type Transporter,
+		type TransportSendRecordEvent
+	} from '@syncit/transporter';
 	import {
 		MirrorBuffer,
 		CustomEventTags,
 		formatBytes,
 		isIgnoredOnRmoteControl,
 		createAppService,
-		createAppControlService
+		createAppControlService,
+		type Chunk
 	} from '@syncit/core';
 	import Panel from './components/Panel.svelte';
 	import LineChart from './components/LineChart.svelte';
@@ -18,18 +24,19 @@
 	import Canvas from './components/Canvas.svelte';
 	import PDF from './components/PDF.svelte';
 	import { t } from '../locales';
+	import type { PaintingConfig } from './types';
 
 	let uid = '';
 
-	export let createTransporter;
-	export let bufferMs;
+	export let createTransporter: ({ role, uid }: { role: string; uid: string }) => Transporter;
+	export let bufferMs: number;
 
-	let transporter;
-	let login;
+	let transporter: Transporter;
+	let login: undefined | Promise<void>;
 
-	let playerDom;
-	let replayer;
-	const buffer = new MirrorBuffer({
+	let playerDom: HTMLElement;
+	let replayer: Replayer;
+	const buffer = new MirrorBuffer<eventWithTime>({
 		bufferMs,
 		onChunk({ data }) {
 			if (!controlCurrent.matches('controlling') || !isIgnoredOnRmoteControl(data)) {
@@ -37,8 +44,8 @@
 			}
 		}
 	});
-	let latencies = [];
-	let sizes = [];
+	let latencies: Array<{ x: number; y: number }> = [];
+	let sizes: Array<{ x: number; y: number }> = [];
 
 	const service = createAppService(() => {
 		replayer.pause();
@@ -49,8 +56,8 @@
 	});
 	let current = service.state;
 
-	let controlService;
-	let controlCurrent;
+	let controlService: ReturnType<typeof createAppControlService>;
+	let controlCurrent: ReturnType<typeof createAppControlService>['state'];
 
 	let open = false;
 
@@ -60,10 +67,10 @@
 		strokeWidth: 5,
 		mode: 'brush'
 	};
-	let canvasEl;
+	let canvasEl: Canvas;
 
 	let sharingPDF = false;
-	let pdfEl;
+	let pdfEl: PDF;
 
 	function init() {
 		transporter = createTransporter({
@@ -86,7 +93,7 @@
 			});
 
 			replayer.on('custom-event', (event) => {
-				switch (event.data.tag) {
+				switch ((event as customEvent).data.tag) {
 					case CustomEventTags.StartPaint:
 						painting = true;
 						break;
@@ -94,7 +101,7 @@
 						painting = false;
 						break;
 					case CustomEventTags.SetPaintingConfig:
-						paintingConfig = event.data.payload.config;
+						paintingConfig = (event as customEvent<{ config: PaintingConfig }>).data.payload.config;
 						break;
 					case CustomEventTags.StartLine:
 						canvasEl && canvasEl.startLine();
@@ -103,10 +110,15 @@
 						canvasEl && canvasEl.endLine();
 						break;
 					case CustomEventTags.DrawLine:
-						canvasEl && canvasEl.setPoints(event.data.payload.points);
+						canvasEl &&
+							canvasEl.setPoints((event as customEvent<{ points: number }>).data.payload.points);
 						break;
 					case CustomEventTags.Highlight:
-						canvasEl && canvasEl.highlight(event.data.payload.left, event.data.payload.top);
+						canvasEl &&
+							canvasEl.highlight(
+								(event as customEvent<{ top: number; left: number }>).data.payload.left,
+								(event as customEvent<{ top: number; left: number }>).data.payload.top
+							);
 						break;
 					default:
 				}
@@ -127,7 +139,7 @@
 		});
 
 		transporter.on(TransporterEvents.SendRecord, (data) => {
-			const { id, data: event, t } = data.payload;
+			const { id, data: event, t } = (data as TransportSendRecordEvent).payload;
 			if (!current.matches('connected')) {
 				replayer.startLive(event.timestamp - buffer.bufferMs);
 				service.send('FIRST_RECORD');
@@ -138,7 +150,9 @@
 						latencies = latencies.concat({ x: t, y: Date.now() - t });
 						break;
 					case CustomEventTags.MouseSize:
-						mouseSize = `syncit-mouse-s${event.data.payload.level}`;
+						mouseSize = `syncit-mouse-s${
+							(event as customEvent<{ level: number }>).data.payload.level
+						}`;
 						break;
 					case CustomEventTags.AcceptRemoteControl:
 						controlService.send({
@@ -152,7 +166,10 @@
 					case CustomEventTags.OpenPDF:
 						sharingPDF = true;
 						tick().then(() => {
-							pdfEl.renderPDF({ dataURI: event.data.payload.dataURI });
+							pdfEl.renderPDF({
+								dataURI: (event as customEvent<{ dataURI: string | ArrayBuffer | null }>).data
+									.payload.dataURI
+							});
 						});
 						break;
 					case CustomEventTags.ClosePDF:
@@ -163,7 +180,8 @@
 				}
 			}
 			Promise.resolve().then(() => collectSize(t, JSON.stringify(event)));
-			buffer.addWithCheck({ id, data: event });
+			const chunk: Chunk<eventWithTime> = { id, data: event, t: event.timestamp };
+			buffer.addWithCheck(chunk);
 			transporter.ackRecord(id);
 		});
 		transporter.on(TransporterEvents.Stop, () => {
@@ -182,12 +200,12 @@
 		uid = '';
 	}
 
-	function normalizePoints(points) {
+	function normalizePoints(points: { x: number; y: number }[]) {
 		if (points.length > 20) {
 			points = points.slice(points.length - 20, points.length);
 		} else {
 			points = new Array(20 - points.length)
-				.fill()
+				.fill(null)
 				.map((_, idx) => ({
 					x: points[0] ? points[0].x - 1000 * (21 - points.length - idx) : 0,
 					y: 0
@@ -207,10 +225,10 @@
 		}
 	}
 	$: lastSize = formatBytes(_sizes[_sizes.length - 1].y);
-	function getSizeOfString(str) {
+	function getSizeOfString(str: string) {
 		return encodeURI(str).split(/%(?:u[0-9A-F]{2})?[0-9A-F]{2}|./).length - 1;
 	}
-	function collectSize(timestamp, str) {
+	function collectSize(timestamp: number, str: string) {
 		if (sizes.length === 0) {
 			sizes.push({ x: Date.now(), y: 0 });
 		}
@@ -482,9 +500,9 @@
 		color: #3e4652;
 	}
 
-	.syncit-load-text h3 {
+	/* .syncit-load-text h3 {
 		margin: 8px 0;
-	}
+	} */
 
 	.syncit-error {
 		color: #e75a3a;

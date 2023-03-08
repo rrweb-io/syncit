@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { eventWithTime } from '@rrweb/types';
+import { Chunk, RemoteControlPayload } from '@syncit/core';
 import {
   Transporter,
   TransporterEvents,
+  TransporterHandlers,
   TransporterEventHandler,
 } from './base';
 
 const STORAGE_KEY = '__transporter_message__';
-export class LocalStorageTransporter<T> implements Transporter<T> {
-  handlers: Record<TransporterEvents, Array<TransporterEventHandler>> = {
+export class LocalStorageTransporter implements Transporter {
+  handlers: TransporterHandlers = {
     [TransporterEvents.SourceReady]: [],
     [TransporterEvents.MirrorReady]: [],
     [TransporterEvents.Start]: [],
@@ -21,13 +24,10 @@ export class LocalStorageTransporter<T> implements Transporter<T> {
     localStorage.removeItem(STORAGE_KEY);
     window.addEventListener('storage', e => {
       if (e.key === STORAGE_KEY && e.newValue) {
-        const message = JSON.parse(e.newValue);
-        this.handlers[message.event as TransporterEvents].map(h =>
-          h({
-            event: message.event,
-            payload: message.payload,
-          })
+        const message: Parameters<TransporterEventHandler>[0] = JSON.parse(
+          e.newValue
         );
+        this.handlers[message.event].map(h => h(message));
       }
     });
   }
@@ -65,7 +65,7 @@ export class LocalStorageTransporter<T> implements Transporter<T> {
     return Promise.resolve();
   }
 
-  sendRecord(record: unknown) {
+  sendRecord(record: Chunk<eventWithTime>) {
     this.setItem({
       event: TransporterEvents.SendRecord,
       payload: record,
@@ -88,7 +88,7 @@ export class LocalStorageTransporter<T> implements Transporter<T> {
     return Promise.resolve();
   }
 
-  sendRemoteControl(payload: unknown) {
+  sendRemoteControl(payload: RemoteControlPayload) {
     this.setItem({
       event: TransporterEvents.RemoteControl,
       payload,

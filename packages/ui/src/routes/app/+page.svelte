@@ -6,7 +6,7 @@
 		target: document.body,
 		props: {
 			bufferMs: 100,
-			createTransporter({ role, uid }) {
+			createTransporter() {
 				return new syncitTransporter.LocalStorageTransporter();
 			}
 		}

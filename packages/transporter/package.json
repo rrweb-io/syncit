@@ -54,6 +54,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "@rrweb/types": "^2.0.0-alpha.5",
     "@syncit/core": "^0.2.0",
     "agora-rtm-sdk": "latest",
     "peerjs": "^1.2.0"

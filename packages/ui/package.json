@@ -31,13 +31,13 @@
 		"svelte": "^3.54.0"
 	},
 	"dependencies": {
-		"@syncit/transporter": "^0.3.2",
 		"@syncit/core": "^0.2.0",
+		"@syncit/transporter": "^0.3.2",
 		"copy-to-clipboard": "^3.3.1",
 		"d3-scale": "^3.2.1",
 		"konva": "^7.2.2",
 		"nanoid": "^3.1.10",
-		"pdfjs-dist": "^2.5.207",
+		"pdfjs-dist": "^3.4.0",
 		"rrweb": "^2.0.0-alpha.5"
 	},
 	"devDependencies": {
@@ -45,6 +45,7 @@
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/kit": "^1.5.0",
 		"@sveltejs/package": "^2.0.0",
+		"@types/d3-scale": "^4.0.3",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"eslint": "^8.28.0",
