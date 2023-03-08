@@ -1,6 +1,6 @@
 {
   "name": "@syncit/core",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "syncit core modules",
   "author": "Yanzhen Yu <yanzhen@smartx.com>",
   "homepage": "https://github.com/rrweb-io/syncit#readme",
@@ -56,7 +56,7 @@
   },
   "dependencies": {
     "@rrweb/types": "^2.0.0-alpha.5",
-    "@syncit/transporter": "^0.3.2",
+    "@syncit/transporter": "^1.0.0",
     "xstate": "^4.37.0",
     "rrweb": "^2.0.0-alpha.5",
     "rrweb-snapshot": "^2.0.0-alpha.5"
