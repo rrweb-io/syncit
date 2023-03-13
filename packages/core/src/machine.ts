@@ -52,7 +52,7 @@ export const createAppService = (onStop: () => void) => {
 };
 
 type AppControlContext = {
-  transporter: Transporter<unknown>;
+  transporter: Transporter;
   stopControl?: listenerHandler;
   replayer?: Replayer;
 };
@@ -140,7 +140,7 @@ export const createAppControlService = (
 };
 
 type EmbedContext = {
-  transporter: Transporter<Chunk<eventWithTime>>;
+  transporter: Transporter;
   record: typeof record;
   stopRecordFn: listenerHandler | null;
   buffer: SourceBuffer<eventWithTime>;

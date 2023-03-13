@@ -5,6 +5,7 @@
   "scripts": {
     "lerna": "lerna",
     "build": "lerna run build",
+    "check": "lerna run check",
     "typings": "lerna run typings",
     "test": "lerna run test",
     "release": "yarn build && changeset publish"
