@@ -21,7 +21,7 @@ jobs:
           node-version: lts/*
 
       - name: Install Dependencies
-        run: npx playwright install && yarn install --frozen-lockfile
+        run: npx playwright install --with-deps && yarn install --frozen-lockfile
 
       - name: Build Project
         run: yarn build
