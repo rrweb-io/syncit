@@ -9,7 +9,7 @@
 		type TransportAckRecordEvent,
 		type Transporter,
 		type TransportRemoteControlEvent
-	} from '@syncit/transporter';
+	} from '@syncit/core';
 	import {
 		applyMirrorAction,
 		SourceBuffer,

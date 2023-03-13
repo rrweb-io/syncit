@@ -6,7 +6,7 @@ import {
   TransporterEvents,
   TransporterHandlers,
   TransporterEventHandler,
-} from './base';
+} from '@syncit/core';
 
 const STORAGE_KEY = '__transporter_message__';
 export class LocalStorageTransporter implements Transporter {

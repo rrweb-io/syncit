@@ -3,11 +3,11 @@ import { eventWithTime } from '@rrweb/types';
 import { Chunk, RemoteControlPayload } from '@syncit/core';
 import AgoraRTM from 'agora-rtm-sdk';
 import {
-  Transporter,
+  type Transporter,
   TransporterEvents,
   TransporterEventHandler,
   TransporterHandlers,
-} from './base';
+} from '@syncit/core';
 
 export type AgoraRtmTransporterOptions = {
   agoraAppId: string;

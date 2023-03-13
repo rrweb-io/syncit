@@ -6,7 +6,7 @@ import {
   TransporterEvents,
   TransporterEventHandler,
   TransporterHandlers,
-} from './base';
+} from '@syncit/core';
 
 export class WebSocketTransporter implements Transporter {
   handlers: TransporterHandlers = {

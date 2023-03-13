@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "lerna": "lerna",
-    "build": "lerna run build",
+    "build": "lerna run prepublish",
     "check": "lerna run check",
     "typings": "lerna run typings",
     "test": "lerna run test",

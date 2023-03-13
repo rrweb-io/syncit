@@ -3,7 +3,7 @@
  */
 
 import { LocalStorageTransporter } from '../src/local-storage';
-import { TransporterEvents } from '../src/base';
+import { TransporterEvents } from '@syncit/core';
 import { eventWithTime } from '@rrweb/types';
 import { Chunk, RemoteControlActions } from '@syncit/core';
 

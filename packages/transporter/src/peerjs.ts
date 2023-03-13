@@ -5,7 +5,7 @@ import {
   Transporter,
   TransporterEvents,
   TransporterEventHandler,
-} from './base';
+} from '@syncit/core';
 import { Chunk, RemoteControlPayload } from '@syncit/core';
 import { eventWithTime } from '@rrweb/types';
 

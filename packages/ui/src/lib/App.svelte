@@ -4,11 +4,7 @@
 	import type { customEvent, eventWithTime } from '@rrweb/types';
 	import { quintOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
-	import {
-		TransporterEvents,
-		type Transporter,
-		type TransportSendRecordEvent
-	} from '@syncit/transporter';
+	import { TransporterEvents, type Transporter, type TransportSendRecordEvent } from '@syncit/core';
 	import {
 		MirrorBuffer,
 		CustomEventTags,
