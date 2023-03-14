@@ -1,6 +1,6 @@
 {
   "name": "@syncit/transporter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "syncit transporters",
   "author": "Yanzhen Yu <yanzhen@smartx.com>",
   "homepage": "https://github.com/rrweb-io/syncit#readme",
@@ -56,7 +56,7 @@
   },
   "dependencies": {
     "@rrweb/types": "^2.0.0-alpha.5",
-    "@syncit/core": "^1.0.1",
+    "@syncit/core": "^1.0.2",
     "agora-rtm-sdk": "latest",
     "peerjs": "^1.2.0"
   }

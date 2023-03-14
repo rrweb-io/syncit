@@ -1,5 +1,15 @@
 # @syncit/ui
 
+## 1.0.2
+
+### Patch Changes
+
+- [#7](https://github.com/rrweb-io/syncit/pull/7) [`f3b7d85`](https://github.com/rrweb-io/syncit/commit/f3b7d85dc09e42ca08f1ea0e2afbf75d7381ce9f) Thanks [@Juice10](https://github.com/Juice10)! - Fix bundling of @syncit/ui to be consistent with the Syncit documentation
+  Fix bug in state machine using deprecated API
+- Updated dependencies [[`a0eedbb`](https://github.com/rrweb-io/syncit/commit/a0eedbb96f25bad3dd99f55bc58bfde1a6e94d0c)]:
+  - @syncit/transporter@1.0.2
+  - @syncit/core@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes

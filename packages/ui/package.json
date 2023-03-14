@@ -1,6 +1,6 @@
 {
 	"name": "@syncit/ui",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run package",
@@ -24,8 +24,8 @@
 		"access": "public"
 	},
 	"dependencies": {
-		"@syncit/core": "^1.0.1",
-		"@syncit/transporter": "^1.0.1",
+		"@syncit/core": "^1.0.2",
+		"@syncit/transporter": "^1.0.2",
 		"copy-to-clipboard": "^3.3.1",
 		"d3-scale": "^3.2.1",
 		"konva": "^7.2.2",
