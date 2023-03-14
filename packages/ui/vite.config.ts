@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import dts from 'vite-plugin-dts';
 import sveltePreprocess from 'svelte-preprocess';
-import { BuildOptions, PluginOption } from 'vite';
+import type { BuildOptions, PluginOption } from 'vite';
 
 export default defineConfig(({ command, mode }) => {
 	let plugins: PluginOption[] = [sveltekit()];
