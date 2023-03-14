@@ -1,5 +1,13 @@
 # @syncit/ui
 
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`4a3ec40`](https://github.com/rrweb-io/syncit/commit/4a3ec409d5b84cc295ec7a485730d44531f0aa08)]:
+  - @syncit/transporter@1.0.1
+  - @syncit/core@1.0.1
+
 ## 1.0.0
 
 ### Major Changes
