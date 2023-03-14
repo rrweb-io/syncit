@@ -1,5 +1,11 @@
 # @syncit/core
 
+## 1.0.1
+
+### Patch Changes
+
+- [#3](https://github.com/rrweb-io/syncit/pull/3) [`4a3ec40`](https://github.com/rrweb-io/syncit/commit/4a3ec409d5b84cc295ec7a485730d44531f0aa08) Thanks [@Juice10](https://github.com/Juice10)! - Move Transporter interface to @syncit/core to remove circular dependencies
+
 ## 1.0.0
 
 ### Major Changes
