@@ -50,7 +50,7 @@
 		latencies = [];
 		sizes = [];
 	});
-	let current = service.state;
+	let current = service.getSnapshot();
 
 	let controlService: ReturnType<typeof createAppControlService>;
 	let controlCurrent: ReturnType<typeof createAppControlService>['state'];
