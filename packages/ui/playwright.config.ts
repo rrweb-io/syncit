@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
 	testDir: 'tests',
 	webServer: {
-		command: 'npm run build && npm run preview',
+		command: 'yarn run vite build -m test && yarn preview -m test',
 		port: 4173
 	},
 	/* Maximum time one test can run for. */
