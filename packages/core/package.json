@@ -57,7 +57,7 @@
   "dependencies": {
     "@rrweb/types": "^2.0.0-alpha.5",
     "xstate": "^4.37.0",
-    "rrweb": "^2.0.0-alpha.5",
+    "rrweb": "^2.0.0",
     "rrweb-snapshot": "^2.0.0-alpha.5"
   },
   "gitHead": "05913a8a804e221cb29affa497017bdcd52c3328"
